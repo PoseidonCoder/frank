@@ -47,6 +47,8 @@ function App() {
     }
 
     resetTranscript();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finalTranscript]);
 
   if (!browserSupportsSpeechRecognition)
