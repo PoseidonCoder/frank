@@ -52,7 +52,7 @@ function App() {
   }, [finalTranscript]);
 
   if (!browserSupportsSpeechRecognition)
-    return <span>Browser doesn't support speech recognition.</span>;
+    return <span>Browser doesn&#39;t support speech recognition.</span>;
 
   return (
     <>
