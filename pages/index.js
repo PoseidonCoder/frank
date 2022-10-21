@@ -28,9 +28,6 @@ function App() {
     ],
   });
 
-  if (!browserSupportsSpeechRecognition)
-    return <span>Browser doesn't support speech recognition.</span>;
-
   useEffect(() => {
     SpeechRecognition.startListening({ continuous: true });
   }, []);
@@ -51,6 +48,9 @@ function App() {
 
     resetTranscript();
   }, [finalTranscript]);
+
+  if (!browserSupportsSpeechRecognition)
+    return <span>Browser doesn't support speech recognition.</span>;
 
   return (
     <>
