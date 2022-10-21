@@ -47,8 +47,9 @@ function App() {
           window.speechSynthesis.speak(utterance);
         })
         .catch((error) => console.log(error));
-      resetTranscript();
-    } else resetTranscript();
+    }
+
+    resetTranscript();
   }, [finalTranscript]);
 
   return (
