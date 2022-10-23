@@ -33,20 +33,22 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (finalTranscript.startsWith(wakeup)) {
-      const request = finalTranscript.split(wakeup + " ")[1];
-      axios
-        .post("/api/generate", {
-          request,
-        })
-        .then((response) => {
-          const utterance = new SpeechSynthesisUtterance(response.data);
-          window.speechSynthesis.speak(utterance);
-        })
-        .catch((error) => console.log(error));
-    }
+    const checkTranscript = async () => {
+      if (finalTranscript.startsWith(wakeup)) {
+        const request = finalTranscript.split(wakeup + " ")[1];
+        const response = await axios
+          .post("/api/generate", {
+            request,
+          })
+          .then((response) => response.data);
 
-    resetTranscript();
+        const utterance = new SpeechSynthesisUtterance(response);
+        window.speechSynthesis.speak(utterance);
+      }
+      resetTranscript();
+    };
+
+    checkTranscript();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finalTranscript]);
