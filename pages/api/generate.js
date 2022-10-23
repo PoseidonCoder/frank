@@ -20,7 +20,8 @@ export default async function handler(req, res) {
   let result = response.data.choices[0].text;
   try {
     result = JSON.parse(result);
-    res.status(200).send(await execute(result));
+    const ctx = { location: req.body.location };
+    res.status(200).send(await execute(ctx, result));
   } catch (error) {
     console.log("result", result);
     console.log(error);

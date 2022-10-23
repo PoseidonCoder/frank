@@ -3,7 +3,7 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 import axios from "axios";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
@@ -27,65 +27,79 @@ function App() {
       { command: "stop", callback: () => window.speechSynthesis.cancel() },
     ],
   });
+  const [initialRenderComplete, setInitialRenderComplete] = useState(false);
+  const [location, setLocation] = useState();
 
   useEffect(() => {
     SpeechRecognition.startListening({ continuous: true });
+    setInitialRenderComplete(true);
+
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        ({ coords: { latitude, longitude } }) =>
+          setLocation({ latitude, longitude })
+      );
+    }
   }, []);
 
+  const processRequest = async (request) => {
+    const response = await axios
+      .post("/api/generate", {
+        request,
+        location,
+      })
+      .then((response) => response.data);
+    const utterance = new SpeechSynthesisUtterance(response);
+    window.speechSynthesis.speak(utterance);
+  };
+
   useEffect(() => {
-    const checkTranscript = async () => {
-      if (finalTranscript.startsWith(wakeup)) {
-        const request = finalTranscript.split(wakeup + " ")[1];
-        const response = await axios
-          .post("/api/generate", {
-            request,
-          })
-          .then((response) => response.data);
-
-        const utterance = new SpeechSynthesisUtterance(response);
-        window.speechSynthesis.speak(utterance);
-      }
-      resetTranscript();
-    };
-
-    checkTranscript();
+    if (finalTranscript.startsWith(wakeup)) {
+      processRequest(finalTranscript.split(wakeup + " ")[1]);
+    }
+    resetTranscript();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finalTranscript]);
 
-  if (!browserSupportsSpeechRecognition)
-    return <span>Browser doesn&#39;t support speech recognition.</span>;
+  if (!initialRenderComplete) {
+    return null;
+  } else {
+    if (!browserSupportsSpeechRecognition)
+      return <span>Browser doesn&#39;t support speech recognition.</span>;
 
-  return (
-    <>
-      <div
-        style={{
-          width: "50%",
-          margin: "auto",
-          textAlign: "center",
-          marginTop: "1rem",
-        }}
-      >
-        <h1 className={styles.title}>Frank</h1>
-        {listening ? (
-          <FontAwesomeIcon
-            icon="microphone"
-            className={styles.icon}
-            onClick={SpeechRecognition.stopListening}
-          />
-        ) : (
-          <FontAwesomeIcon
-            icon="microphone-slash"
-            className={styles.icon}
-            onClick={() =>
-              SpeechRecognition.startListening({ continuous: true })
-            }
-          />
-        )}
-        <h1>{interimTranscript}</h1>
-      </div>
-    </>
-  );
+    return (
+      <>
+        <div
+          style={{
+            width: "50%",
+            margin: "auto",
+            textAlign: "center",
+            marginTop: "1rem",
+          }}
+        >
+          <h1 className={styles.title}>Frank</h1>
+          {listening ? (
+            <FontAwesomeIcon
+              icon="microphone"
+              className={styles.icon}
+              onClick={SpeechRecognition.stopListening}
+            />
+          ) : (
+            <FontAwesomeIcon
+              icon="microphone-slash"
+              className={styles.icon}
+              onClick={() =>
+                SpeechRecognition.startListening({ continuous: true })
+              }
+            />
+          )}
+
+          <h1>{interimTranscript}</h1>
+        </div>
+      </>
+    );
+  }
 }
 
 export default App;
