@@ -48,7 +48,7 @@ function App() {
         request,
         location,
       })
-      .then(({ data: { data } }) => {
+      .then(({ data }) => {
         const utterance = new SpeechSynthesisUtterance(data);
         window.speechSynthesis.speak(utterance);
       });

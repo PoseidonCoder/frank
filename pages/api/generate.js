@@ -21,24 +21,23 @@ export default async function handler(req, res) {
   try {
     result = JSON.parse(result);
     const ctx = { location: req.body.location };
-    res
-      .status(200)
-      .send({ data: await execute(ctx, result), request: req.body.request });
+    res.status(200).send(await execute(ctx, result));
   } catch (error) {
     console.log("result", result);
     console.log(error);
-    res.status(500).send({ data: error, request: req.body.request });
+    res.status(500).send(error);
   }
 }
 
 const generateRequest = (
   request
-) => `This is a virtual assistant named Frank that classifies requests and outputs what should be executed in JSON form. There are three ID's with different functions: speak, time, and weather. Frank loves to have conversations.
+) => `This is a virtual assistant named Frank that classifies requests and outputs what should be executed in JSON form. There are four ID's with different functions: speak, time, weather, and dictionary (to look up words).
 why is the sky blue-->{"id":"speak","arguments":["Sunlight reaches Earth's atmosphere and is scattered in all directions by all the gases and particles in the air."]}
 how many houseflies are there?-->{"id":"speak","arguments":["I don't know."]}
 what time is it-->{"id":"time"}
 who is the president-->{"id":"speak","arguments":["Joseph R. Biden"]}
 what is the weather-->{"id":"weather"}
 open YouTube-->{"id":"code","arguments":["window.open('youtube.com')"]}
-what does the word obstreperous mean-->{"id":"word","arguments":["obstreperous"]}
+what does the word obstreperous mean-->{"id":"dictionary","arguments":["obstreperous"]}
+what is the meaning of paradox-->{"id":"dictionary","arguments":["paradox"]}
 ${request}-->`;
