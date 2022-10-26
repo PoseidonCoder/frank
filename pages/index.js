@@ -42,15 +42,16 @@ function App() {
     }
   }, []);
 
-  const processRequest = async (request) => {
-    const response = await axios
+  const processRequest = (request) => {
+    axios
       .post("/api/generate", {
         request,
         location,
       })
-      .then((response) => response.data);
-    const utterance = new SpeechSynthesisUtterance(response);
-    window.speechSynthesis.speak(utterance);
+      .then(({ data: { data } }) => {
+        const utterance = new SpeechSynthesisUtterance(data);
+        window.speechSynthesis.speak(utterance);
+      });
   };
 
   useEffect(() => {

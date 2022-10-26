@@ -21,11 +21,13 @@ export default async function handler(req, res) {
   try {
     result = JSON.parse(result);
     const ctx = { location: req.body.location };
-    res.status(200).send(await execute(ctx, result));
+    res
+      .status(200)
+      .send({ data: await execute(ctx, result), request: req.body.request });
   } catch (error) {
     console.log("result", result);
     console.log(error);
-    res.status(500).send(error);
+    res.status(500).send({ data: error, request: req.body.request });
   }
 }
 
