@@ -10,10 +10,13 @@ import {
   faMicrophone,
   faMicrophoneSlash,
 } from "@fortawesome/free-solid-svg-icons";
+import { createSpeechlySpeechRecognition } from "@speechly/speech-recognition-polyfill";
 
 library.add(faMicrophone, faMicrophoneSlash);
 
-const wakeup = "hey Frank";
+SpeechRecognition.applyPolyfill(
+  createSpeechlySpeechRecognition(process.env.NEXT_PUBLIC_SPEECHLY_ID)
+);
 
 function App() {
   const {
@@ -29,6 +32,8 @@ function App() {
   });
   const [initialRenderComplete, setInitialRenderComplete] = useState(false);
   const [location, setLocation] = useState();
+
+  const realFinalTranscript = finalTranscript.toLocaleLowerCase();
 
   useEffect(() => {
     SpeechRecognition.startListening({ continuous: true });
@@ -55,8 +60,8 @@ function App() {
   };
 
   useEffect(() => {
-    if (finalTranscript.startsWith(wakeup)) {
-      processRequest(finalTranscript.split(wakeup + " ")[1]);
+    if (realFinalTranscript.startsWith("hey frank")) {
+      processRequest(realFinalTranscript.split("hey frank ")[1]);
     }
     resetTranscript();
 
@@ -96,7 +101,7 @@ function App() {
             />
           )}
 
-          <h1>{interimTranscript}</h1>
+          <h1>{interimTranscript.toLowerCase()}</h1>
         </div>
       </>
     );
