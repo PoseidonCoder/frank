@@ -33,6 +33,7 @@ const wakeup = [
   "i rank",
   "this frank",
   "no frank",
+  "if frank",
 ];
 
 function App() {
@@ -76,10 +77,18 @@ function App() {
   }, [interimTranscript]);
 
   useEffect(() => {
-    const key = wakeup.some((v) => realFinalTranscript.indexOf(v) >= 0);
-    if (key) {
+    let key;
+    if (
+      wakeup.some((v) => {
+        if (realFinalTranscript.indexOf(v) >= 0) {
+          key = v;
+          return true;
+        }
+      })
+    ) {
       const content = realFinalTranscript.split(key + " ")[1];
-      if (content != "") processRequest();
+      console.log(content);
+      if (content != "") processRequest(content);
     }
     resetTranscript();
 
