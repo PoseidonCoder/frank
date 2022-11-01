@@ -1,5 +1,4 @@
 import { Configuration, OpenAIApi } from "openai";
-import execute from "../../lib/functions";
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -10,7 +9,7 @@ export default async function handler(req, res) {
   const response = await openai.createCompletion({
     model: "davinci",
     prompt: generateRequest(req.body.request),
-    temperature: 0.6,
+    temperature: 0.7,
     max_tokens: 200,
     stop: ["\n"],
     frequency_penalty: 2,
@@ -19,9 +18,7 @@ export default async function handler(req, res) {
 
   let result = response.data.choices[0].text;
   try {
-    result = JSON.parse(result);
-    const ctx = { location: req.body.location };
-    res.status(200).send(await execute(ctx, result));
+    res.status(200).send(JSON.parse(result));
   } catch (error) {
     console.log("result", result);
     console.log(error);

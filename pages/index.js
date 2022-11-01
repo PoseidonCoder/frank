@@ -11,12 +11,27 @@ import {
   faMicrophoneSlash,
 } from "@fortawesome/free-solid-svg-icons";
 import { createSpeechlySpeechRecognition } from "@speechly/speech-recognition-polyfill";
+import execute from "../lib/functions";
 
 library.add(faMicrophone, faMicrophoneSlash);
 
 SpeechRecognition.applyPolyfill(
   createSpeechlySpeechRecognition(process.env.NEXT_PUBLIC_SPEECHLY_ID)
 );
+
+const wakeup = [
+  "hey frank",
+  "pay frank",
+  "hey freak",
+  "a frank",
+  "i frank",
+  "oh fry",
+  "i break",
+  "hey fra",
+  "boy frank",
+  "here frank",
+  "i rank",
+];
 
 function App() {
   const {
@@ -31,36 +46,35 @@ function App() {
     ],
   });
   const [initialRenderComplete, setInitialRenderComplete] = useState(false);
-  const [location, setLocation] = useState();
 
-  const realFinalTranscript = finalTranscript.toLocaleLowerCase();
+  const realFinalTranscript = finalTranscript.toLowerCase();
+  const realInterimTranscript = interimTranscript.toLowerCase();
 
   useEffect(() => {
     SpeechRecognition.startListening({ continuous: true });
     setInitialRenderComplete(true);
-
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        ({ coords: { latitude, longitude } }) =>
-          setLocation({ latitude, longitude })
-      );
-    }
   }, []);
 
   const processRequest = (request) => {
     axios
       .post("/api/generate", {
         request,
-        location,
       })
       .then(({ data }) => {
-        const utterance = new SpeechSynthesisUtterance(data);
-        window.speechSynthesis.speak(utterance);
+        console.log(data);
+        execute(data);
       });
   };
 
   useEffect(() => {
-    if (realFinalTranscript.startsWith("hey frank")) {
+    let color = "white";
+    if (wakeup.some((v) => realInterimTranscript.indexOf(v) >= 0))
+      color = "lightgreen";
+    document.body.style.backgroundColor = color;
+  }, [interimTranscript]);
+
+  useEffect(() => {
+    if (wakeup.some((v) => realFinalTranscript.indexOf(v) >= 0)) {
       processRequest(realFinalTranscript.split("hey frank ")[1]);
     }
     resetTranscript();
@@ -100,8 +114,13 @@ function App() {
               }
             />
           )}
+          {realInterimTranscript.startsWith("hey frank") && (
+            <p>
+              <b>Listening...</b>
+            </p>
+          )}
 
-          <h1>{interimTranscript.toLowerCase()}</h1>
+          <h1>{realInterimTranscript}</h1>
         </div>
       </>
     );
